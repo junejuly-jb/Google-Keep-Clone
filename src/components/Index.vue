@@ -70,11 +70,9 @@
                     </v-list-item-group>
                 </v-list>
             </v-navigation-drawer>
-            <v-content>
-                <v-container>
+            <v-main app>
                     asd
-                </v-container>
-            </v-content>
+            </v-main>
         </template>
     </v-app>
 </template>

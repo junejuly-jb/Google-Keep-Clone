@@ -1,13 +1,16 @@
 <template>
     <v-app>
-        <v-app-bar app flat>
+        <v-app-bar app color="white" elevate-on-scroll>
+            <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
             <v-app-bar-nav-icon class="ml-4"><v-icon size="40" color="yellow">mdi-google-keep</v-icon></v-app-bar-nav-icon>
         
             <v-toolbar-title class="ml-3 mr-5">Google Keep</v-toolbar-title>
 
             <v-spacer></v-spacer>
 
-            <input type="text">
+            <v-card class="input-wrapper d-none d-sm-flex" width="374">
+                <input type="text" class="search" placeholder="Search . . .">
+            </v-card>
 
             <v-btn icon>
                 <v-icon>mdi-refresh</v-icon>
@@ -29,65 +32,107 @@
                     alt="John"
                 >
             </v-avatar>
-        </v-app-bar>
-        <v-navigation-drawer app>
+        </v-app-bar >
+        <v-navigation-drawer v-model="drawer" app>
            <v-list
                 nav
                 dense
             >
                 <v-list-item-group
-                v-model="group"
-                active-class="deep-purple--text text--accent-4"
                 >
                 <v-list-item>
-                    <v-list-item-title>Foo</v-list-item-title>
+                    <v-list-item-title>
+                        <span><v-icon>mdi-lightbulb-outline</v-icon></span>
+                        <span class="ml-5"></span>
+                        <span class="col align-items-center">Notes</span>
+                    </v-list-item-title>
                 </v-list-item>
 
                 <v-list-item>
-                    <v-list-item-title>Bar</v-list-item-title>
+                    <v-list-item-title>
+                        <span><v-icon>mdi-bell-outline</v-icon></span>
+                        <span class="ml-5"></span>
+                        <span class="col align-items-center">Reminders</span>
+                    </v-list-item-title>
                 </v-list-item>
 
                 <v-list-item>
-                    <v-list-item-title>Fizz</v-list-item-title>
+                    <v-list-item-title>
+                        <span><v-icon>mdi-pencil-outline</v-icon></span>
+                        <span class="ml-5"></span>
+                        <span class="col align-items-center">Edit Label</span>
+                    </v-list-item-title>
                 </v-list-item>
 
                 <v-list-item>
-                    <v-list-item-title>Buzz</v-list-item-title>
+                    <v-list-item-title><span><v-icon>mdi-archive-outline</v-icon></span>
+                    <span class="ml-5"></span>
+                    <span class="col align-items-center">Archive</span></v-list-item-title>
+                </v-list-item>
+                
+                <v-list-item>
+                    <v-list-item-title>
+                        <span><v-icon>mdi-trash-can-outline</v-icon></span>
+                        <span class="ml-5"></span>
+                        <span class="col align-items-center">Trash</span>
+                    </v-list-item-title>
                 </v-list-item>
                 </v-list-item-group>
             </v-list>
         </v-navigation-drawer>
-
-        
         <div class="content-wrapper">
-            <vue-masonry-wall :items="items" :options="{width: 300, padding: 10}" @append="append">
-                <template v-slot:default="{item}">
-                    <div class="item px-4 py-3">
-                        <h5>{{item.title}}</h5>
-                        <p>{{item.content}}</p>
-                    </div>
-                </template>
+            <vue-masonry-wall :items="items" :options="{width: 300, padding: 7}" >
+                    <template v-slot:default="{item}">
+                            <div class="item px-4 py-3" :class="{ 'selected' : item.selected == true}">
+                                <div class="float-right">
+                                    <v-icon small @click="selectNote(item)" v-if="item.selected == false">mdi-circle-outline</v-icon>
+                                    <v-icon small @click="selectNote(item)" v-else color="blue">mdi-check-circle</v-icon>
+                                </div>
+                                <h5>{{item.title}}</h5>
+                                <p>{{item.content}}</p>
+                                <small>{{item.selected}}</small>
+                            </div>
+                    </template>
             </vue-masonry-wall>
+            <div class="floating" v-show="selectionActive == true">
+                <v-btn
+                    color="pink"
+                    fab
+                >
+                    <v-icon>mdi-plus</v-icon>
+                </v-btn>
+            </div>
         </div>
+        
     </v-app>
 </template>
 
 <script>
 import VueMasonryWall from "vue-masonry-wall";
+
 export default {
     components: {VueMasonryWall},
     data: () => ({
         drawer: true,
+        mini: true,
+        selectionActive: false,
         items: [
-          {title: 'Item 0', content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'},
-          {title: 'Item 1', content: 'Donec maximus leo quis leo pharetra sodales. Cras suscipit quam sed ex sagittis tempus. leo quis leo pharetra sodales. Cras suscipit quam sed ex sagittis tempus.'},
-          {title: 'Item 0', content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'},
-          {title: 'Item 1', content: 'Donec maximus leo quis leo pharetra sodales. Cras suscipit quam sed ex sagittis tempus.'},
-          {title: 'Item 0', content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'},
-          {title: 'Item 0', content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'},
+          {title: 'Item 0', content: 'hey1', selected: false},
+          {title: 'Item 1', content: 'quam sed ex sagittis tempus.', selected: false},
+          {title: 'Item 0', content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', selected: false},
+          {title: 'Item 1', content: 'Donec maximus leo quis leo pharetra sodales. Cras suscipit quam sed ex sagittis tempus.', selected: false},
+          {title: 'Item 0', content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', selected: false},
+          {title: 'Item 0', content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', selected: false},
 
         ]
     }),
+
+    methods: {
+        selectNote(item) {
+            item.selected = !item.selected
+            this.selectionActive = true
+        }
+    }
 }
 </script>
 
@@ -104,9 +149,35 @@ export default {
     .item{
         border: 1px solid lightgray;
         border-radius: 10px;
+        display: float;
     }
 
     .content-wrapper{
         margin: 20px 50px;
+    }
+
+    .search{
+        background: white;
+        width: 100%;
+    }
+
+    .search:focus{
+        outline: none;
+    }
+
+    .input-wrapper{
+        padding: 8px 10px;
+    }
+
+    .selected{
+        border: 1px solid dodgerblue;
+        transition: 0.5s;
+    }
+
+    .floating{
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 99;
     }
 </style>

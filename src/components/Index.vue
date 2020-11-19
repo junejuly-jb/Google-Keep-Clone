@@ -90,16 +90,16 @@
                                 </div>
                                 <h5>{{item.title}}</h5>
                                 <p>{{item.content}}</p>
-                                <small>{{item.selected}}</small>
                             </div>
                     </template>
             </vue-masonry-wall>
             <div class="floating" v-show="selectionActive == true">
                 <v-btn
-                    color="pink"
+                    color="red"
+                    dark
                     fab
                 >
-                    <v-icon>mdi-plus</v-icon>
+                    <v-icon>mdi-trash-can-outline</v-icon>
                 </v-btn>
             </div>
         </div>
@@ -130,7 +130,14 @@ export default {
     methods: {
         selectNote(item) {
             item.selected = !item.selected
-            this.selectionActive = true
+            const isThereSelected = Object.values(this.items).filter(items => items.selected == true);
+
+            if(isThereSelected.length == 0){
+                this.selectionActive = false   
+            }
+            else{
+                this.selectionActive = true
+            }
         }
     }
 }
@@ -153,7 +160,7 @@ export default {
     }
 
     .content-wrapper{
-        margin: 20px 50px;
+        margin: 20px 100px;
     }
 
     .search{
@@ -179,5 +186,6 @@ export default {
         bottom: 30px;
         right: 30px;
         z-index: 99;
+        transition: 0.4s;
     }
 </style>

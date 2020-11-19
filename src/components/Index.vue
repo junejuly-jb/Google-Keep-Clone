@@ -9,7 +9,7 @@
             <v-spacer></v-spacer>
 
             <v-card class="input-wrapper d-none d-sm-flex" width="374">
-                <input type="text" class="search" placeholder="Search . . .">
+                <input v-model="search" type="text" class="search" placeholder="Search . . .">
             </v-card>
 
             <v-btn icon>
@@ -81,7 +81,7 @@
             </v-list>
         </v-navigation-drawer>
         <div class="content-wrapper">
-            <vue-masonry-wall :items="items" :options="{width: 300, padding: 7}" >
+            <!-- <vue-masonry-wall :items="resultQuery" :options="{width: 300, padding: 7}" >
                     <template v-slot:default="{item}">
                             <div class="item px-4 py-3" :class="{ 'selected' : item.selected == true}">
                                 <div class="float-right">
@@ -92,7 +92,22 @@
                                 <p>{{item.content}}</p>
                             </div>
                     </template>
-            </vue-masonry-wall>
+            </vue-masonry-wall> -->
+            <masonry
+            :cols="4"
+            :gutter="30"
+            >
+            <div v-for="(item, index) in resultQuery" :key="index">
+                <div class="item px-4 py-3 my-3" :class="{ 'selected' : item.selected == true}">
+                    <div class="float-right">
+                        <v-icon small @click="selectNote(item)" v-if="item.selected == false">mdi-circle-outline</v-icon>
+                        <v-icon small @click="selectNote(item)" v-else color="blue">mdi-check-circle</v-icon>
+                    </div>
+                    <h5>{{item.title}}</h5>
+                    <p>{{item.content}}</p>
+                </div>
+            </div>
+            </masonry>
             <div class="floating" v-show="selectionActive == true">
                 <v-btn
                     color="red"
@@ -108,14 +123,15 @@
 </template>
 
 <script>
-import VueMasonryWall from "vue-masonry-wall";
-
+// import VueMasonryWall from "vue-masonry-wall";
+// import VueMasonry from 'vue-masonry-css'
 export default {
-    components: {VueMasonryWall},
+    // components: {VueMasonry},
     data: () => ({
         drawer: true,
         mini: true,
         selectionActive: false,
+        search: null,
         items: [
           {title: 'Item 0', content: 'hey1', selected: false},
           {title: 'Item 1', content: 'quam sed ex sagittis tempus.', selected: false},
@@ -137,6 +153,19 @@ export default {
             }
             else{
                 this.selectionActive = true
+            }
+        }
+    },
+
+    computed: {
+        resultQuery(){
+            if(this.search){
+                return this.items.filter((item) => {
+                    return this.search.toLowerCase().split(' ').every(v => item.title.toLowerCase().includes(v))
+                })
+            }
+            else{
+                return this.items
             }
         }
     }

@@ -100,8 +100,8 @@
             <div v-for="(item, index) in resultQuery" :key="index">
                 <div class="item px-4 py-3 my-3" :class="{ 'selected' : item.selected == true}">
                     <div class="float-right">
-                        <v-icon small @click="selectNote(item)" v-if="item.selected == false">mdi-circle-outline</v-icon>
-                        <v-icon small @click="selectNote(item)" v-else color="blue">mdi-check-circle</v-icon>
+                        <v-icon small @click="selectNote(item, index)" v-if="item.selected == false">mdi-circle-outline</v-icon>
+                        <v-icon small @click="deselectNote(item, index)" v-else color="blue">mdi-check-circle</v-icon>
                     </div>
                     <h5>{{item.title}}</h5>
                     <p>{{item.content}}</p>
@@ -113,6 +113,7 @@
                     color="red"
                     dark
                     fab
+                    @click="btndelete"
                 >
                     <v-icon>mdi-trash-can-outline</v-icon>
                 </v-btn>
@@ -132,20 +133,24 @@ export default {
         mini: true,
         selectionActive: false,
         search: null,
+        indeces: [],
         items: [
           {title: 'Item 0', content: 'hey1', selected: false},
           {title: 'Item 1', content: 'quam sed ex sagittis tempus.', selected: false},
-          {title: 'Item 0', content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', selected: false},
-          {title: 'Item 1', content: 'Donec maximus leo quis leo pharetra sodales. Cras suscipit quam sed ex sagittis tempus.', selected: false},
-          {title: 'Item 0', content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', selected: false},
-          {title: 'Item 0', content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', selected: false},
+          {title: 'Item 2', content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', selected: false},
+          {title: 'Item 3', content: 'Donec maximus leo quis leo pharetra sodales. Cras suscipit quam sed ex sagittis tempus.', selected: false},
+          {title: 'Item 4', content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', selected: false},
+          {title: 'Item 5', content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', selected: false},
 
         ]
     }),
 
     methods: {
-        selectNote(item) {
-            item.selected = !item.selected
+        selectNote(item, index) {
+            item.selected = true
+            
+            this.indeces.push(index)
+
             const isThereSelected = Object.values(this.items).filter(items => items.selected == true);
 
             if(isThereSelected.length == 0){
@@ -154,20 +159,53 @@ export default {
             else{
                 this.selectionActive = true
             }
+            console.log('selected indexes: ' + this.indeces)
+            
+        },
+
+
+        deselectNote(item, index){
+            item.selected = false
+
+            this.indeces = Object.values(this.indeces).filter(i => i != index)
+
+            const isThereSelected = Object.values(this.items).filter(items => items.selected == true);
+
+            if(isThereSelected.length == 0){
+                this.selectionActive = false   
+            }
+            else{
+                this.selectionActive = true
+            }
+
+            console.log('selected indexes: ' + this.indeces)
+
+        },
+
+        
+        btndelete(){
+            this.items = this.items.filter((v, i) => {
+                return this.indeces.indexOf(i) == -1;
+            })
+
+            this.indeces = []
+            this.selectionActive = false
         }
     },
 
     computed: {
         resultQuery(){
+
             if(this.search){
                 return this.items.filter((item) => {
                     return this.search.toLowerCase().split(' ').every(v => item.title.toLowerCase().includes(v))
                 })
             }
+
             else{
                 return this.items
             }
-        }
+        },
     }
 }
 </script>

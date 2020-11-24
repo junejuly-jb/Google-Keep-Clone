@@ -37,6 +37,7 @@
            <v-list
                 nav
                 dense
+                shaped
             >
                 <v-list-item-group
                 >
@@ -93,20 +94,51 @@
                             </div>
                     </template>
             </vue-masonry-wall> -->
+            
+                <v-card v-show="!typingMode" max-width="600" style="margin: auto;" class="mb-5 rounded-lg">
+                    <v-container>
+                        <div @click="typingMode = true">Take a note . . .</div>
+                    </v-container>
+                </v-card>
+
+
+                <v-card v-show="typingMode" max-width="600" style="margin: auto;" class="mb-5 rounded-lg">
+                    <v-container>
+                        <div class="pb-4 px-3">
+                            <input type="text" placeholder="Title" class="search">
+                        </div>
+                        <div class="px-3">
+                            <input type="text" placeholder="Take a note. . ." class="search">
+                        </div>
+                    </v-container>
+                </v-card>
+           
+
             <masonry
             :cols="4"
             :gutter="30"
             >
-            <div v-for="(item, index) in resultQuery" :key="index">
-                <div class="item px-4 py-3 my-3" :class="{ 'selected' : item.selected == true}">
-                    <div class="float-right">
-                        <v-icon small @click="selectNote(item, index)" v-if="item.selected == false">mdi-circle-outline</v-icon>
-                        <v-icon small @click="deselectNote(item, index)" v-else color="blue">mdi-check-circle</v-icon>
-                    </div>
-                    <h5>{{item.title}}</h5>
-                    <p>{{item.content}}</p>
+                <div v-for="(item, index) in resultQuery" :key="index">
+                    <v-card outlined class="rounded-lg px-4 py-3 my-3" :class="{ 'selected' : item.selected == true}">
+                        <div class="float-right">
+                            <v-icon small @click="selectNote(item, index)" v-if="item.selected == false">mdi-circle-outline</v-icon>
+                            <v-icon small @click="deselectNote(item, index)" v-else color="blue">mdi-check-circle</v-icon>
+                        </div>
+                        <h5>{{item.title}}</h5>
+                        <p>{{item.content}}</p>
+                        <div class="d-flex">
+                            <div>
+                                <v-btn fab icon x-small><v-icon>mdi-tag-outline</v-icon></v-btn>
+                            </div>
+                            <div>
+                                <v-btn fab icon x-small><v-icon>mdi-trash-can-outline</v-icon></v-btn>
+                            </div>
+                            <div>
+                                <v-btn fab icon x-small><v-icon>mdi-pencil-outline</v-icon></v-btn>
+                            </div>
+                        </div>
+                    </v-card>
                 </div>
-            </div>
             </masonry>
             <div class="floating" v-show="selectionActive == true">
                 <v-btn
@@ -130,9 +162,10 @@ export default {
     // components: {VueMasonry},
     data: () => ({
         drawer: true,
-        mini: true,
+        show: false,
         selectionActive: false,
         search: null,
+        typingMode: false,
         indeces: [],
         items: [
           {title: 'Item 0', content: 'hey1', selected: false},

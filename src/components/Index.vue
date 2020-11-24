@@ -95,21 +95,30 @@
                     </template>
             </vue-masonry-wall> -->
             
-                <v-card v-show="!typingMode" max-width="600" style="margin: auto;" class="mb-5 rounded-lg">
+                <v-card transition="slide-x-transition" v-show="!typingMode" max-width="600" style="margin: auto;" class="mb-5 rounded-lg">
                     <v-container>
                         <div @click="typingMode = true">Take a note . . .</div>
                     </v-container>
                 </v-card>
 
 
-                <v-card v-show="typingMode" max-width="600" style="margin: auto;" class="mb-5 rounded-lg">
+                <v-card transition="slide-x-transition" v-show="typingMode" max-width="600" style="margin: auto;" class="mb-5 rounded-lg">
                     <v-container>
                         <div class="pb-4 px-3">
                             <input type="text" placeholder="Title" class="search">
                         </div>
                         <div class="px-3">
-                            <input type="text" placeholder="Take a note. . ." class="search">
+                            <template>
+                                <textarea class="search" placeholder="Take a note . . ." rows="4"></textarea>
+                            </template>
                         </div>
+                    </v-container>
+                    <v-container>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn text @click="typingMode = false">Close</v-btn>
+                            <v-btn text color="blue darken-1">Save</v-btn>
+                        </v-card-actions>
                     </v-container>
                 </v-card>
            
@@ -158,6 +167,7 @@
 <script>
 // import VueMasonryWall from "vue-masonry-wall";
 // import VueMasonry from 'vue-masonry-css'
+
 export default {
     // components: {VueMasonry},
     data: () => ({
@@ -223,7 +233,7 @@ export default {
 
             this.indeces = []
             this.selectionActive = false
-        }
+        },
     },
 
     computed: {
@@ -277,8 +287,8 @@ export default {
     }
 
     .selected{
-        border: 1px solid dodgerblue;
-        transition: 0.5s;
+        border: 1px solid dodgerblue !important;
+        transition: 0.3s !important;
     }
 
     .floating{

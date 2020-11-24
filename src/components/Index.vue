@@ -16,8 +16,12 @@
                 <v-icon>mdi-refresh</v-icon>
             </v-btn>
 
-            <v-btn icon>
+            <v-btn icon @click="gridView = false" v-show="gridView">
                 <v-icon>mdi-view-agenda-outline</v-icon>
+            </v-btn>
+
+            <v-btn icon @click="gridView = true" v-show="!gridView">
+                <v-icon>mdi-view-grid-outline</v-icon>
             </v-btn>
 
             <v-btn icon>
@@ -105,50 +109,77 @@
                 <v-card transition="slide-x-transition" v-show="typingMode" max-width="600" style="margin: auto;" class="mb-5 rounded-lg">
                     <v-container>
                         <div class="pb-4 px-3">
-                            <input type="text" placeholder="Title" class="search">
+                            <input type="text" placeholder="Title" class="search" v-model="form.title">
                         </div>
                         <div class="px-3">
-                            <template>
-                                <textarea class="search" placeholder="Take a note . . ." rows="4"></textarea>
-                            </template>
+                            <textarea class="search" placeholder="Take a note . . ." rows="4" v-model="form.content"></textarea>
                         </div>
                     </v-container>
                     <v-container>
                         <v-card-actions>
                             <v-spacer></v-spacer>
                             <v-btn text @click="typingMode = false">Close</v-btn>
-                            <v-btn text color="blue darken-1">Save</v-btn>
+                            <v-btn text color="blue darken-1" @click="btnAddNote">Save</v-btn>
                         </v-card-actions>
                     </v-container>
                 </v-card>
            
+            <div v-show="gridView == true">
+                <masonry
+                :cols="4"
+                :gutter="30"
+                >
+                    <div v-for="(item, index) in resultQuery" :key="index">
+                        <v-card outlined class="rounded-lg px-4 py-3 my-3" :class="{ 'selected' : item.selected == true}">
+                            <div class="float-right">
+                                <v-icon small @click="selectNote(item, index)" v-if="item.selected == false">mdi-circle-outline</v-icon>
+                                <v-icon small @click="deselectNote(item, index)" v-else color="blue">mdi-check-circle</v-icon>
+                            </div>
+                            <h5>{{item.title}}</h5>
+                            <p>{{item.content}}</p>
+                            <div class="d-flex">
+                                <div>
+                                    <v-btn fab icon x-small><v-icon>mdi-tag-outline</v-icon></v-btn>
+                                </div>
+                                <div>
+                                    <v-btn fab icon x-small><v-icon>mdi-trash-can-outline</v-icon></v-btn>
+                                </div>
+                                <div>
+                                    <v-btn fab icon x-small><v-icon>mdi-pencil-outline</v-icon></v-btn>
+                                </div>
+                            </div>
+                        </v-card>
+                    </div>
+                </masonry>
+            </div>
+            <!-- StackLayout View  -->
 
-            <masonry
-            :cols="4"
-            :gutter="30"
-            >
-                <div v-for="(item, index) in resultQuery" :key="index">
-                    <v-card outlined class="rounded-lg px-4 py-3 my-3" :class="{ 'selected' : item.selected == true}">
-                        <div class="float-right">
-                            <v-icon small @click="selectNote(item, index)" v-if="item.selected == false">mdi-circle-outline</v-icon>
-                            <v-icon small @click="deselectNote(item, index)" v-else color="blue">mdi-check-circle</v-icon>
+            <div v-show="!gridView" v-for="(item, index) in resultQuery" :key="index">
+                <v-card outlined class="rounded-lg px-4 py-3 my-3" :class="{ 'selected' : item.selected == true}">
+                    <div class="float-right">
+                        <v-icon small @click="selectNote(item, index)" v-if="item.selected == false">mdi-circle-outline</v-icon>
+                        <v-icon small @click="deselectNote(item, index)" v-else color="blue">mdi-check-circle</v-icon>
+                    </div>
+                    <h5>{{item.title}}</h5>
+                    <p>{{item.content}}</p>
+                    <div class="d-flex">
+                        <div>
+                            <v-btn fab icon x-small><v-icon>mdi-tag-outline</v-icon></v-btn>
                         </div>
-                        <h5>{{item.title}}</h5>
-                        <p>{{item.content}}</p>
-                        <div class="d-flex">
-                            <div>
-                                <v-btn fab icon x-small><v-icon>mdi-tag-outline</v-icon></v-btn>
-                            </div>
-                            <div>
-                                <v-btn fab icon x-small><v-icon>mdi-trash-can-outline</v-icon></v-btn>
-                            </div>
-                            <div>
-                                <v-btn fab icon x-small><v-icon>mdi-pencil-outline</v-icon></v-btn>
-                            </div>
+                        <div>
+                            <v-btn fab icon x-small><v-icon>mdi-trash-can-outline</v-icon></v-btn>
                         </div>
-                    </v-card>
-                </div>
-            </masonry>
+                        <div>
+                            <v-btn fab icon x-small><v-icon>mdi-pencil-outline</v-icon></v-btn>
+                        </div>
+                    </div>
+                </v-card>
+            </div>
+
+            <!-- StackLayout View  -->
+
+
+
             <div class="floating" v-show="selectionActive == true">
                 <v-btn
                     color="red"
@@ -161,6 +192,26 @@
             </div>
         </div>
         
+
+        <!-- snackbar  -->
+        <v-snackbar
+            v-model="snackbar"
+        >
+            {{ message }}
+
+            <template v-slot:action="{ attrs }">
+            <v-btn
+                color="pink"
+                text
+                v-bind="attrs"
+                @click="snackbar = false"
+            >
+                Close
+            </v-btn>
+            </template>
+        </v-snackbar>
+        <!-- snackbar  -->
+
     </v-app>
 </template>
 
@@ -172,10 +223,14 @@ export default {
     // components: {VueMasonry},
     data: () => ({
         drawer: true,
+        gridView: true,
+        message: '',
+        snackbar: false,
         show: false,
         selectionActive: false,
         search: null,
         typingMode: false,
+        form: [],
         indeces: [],
         items: [
           {title: 'Item 0', content: 'hey1', selected: false},
@@ -234,6 +289,20 @@ export default {
             this.indeces = []
             this.selectionActive = false
         },
+
+
+        btnAddNote(){
+            this.typingMode = false
+            this.form.selected = false,
+            this.items.unshift(this.form)
+            this.snackbar = true
+            setTimeout(() => {
+                this.snackbar = false
+                this.message = 'Note added'
+                this.form = []
+            }, 2000)
+
+        }
     },
 
     computed: {
